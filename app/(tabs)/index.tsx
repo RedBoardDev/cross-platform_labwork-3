@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const user = useSelector((state: RootState) => state.auth.user);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

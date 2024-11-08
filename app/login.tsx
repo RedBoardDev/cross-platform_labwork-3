@@ -1,32 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useDispatch } from 'react-redux';
+import { login } from './store/authSlice';
+import { auth } from './firebase/firebaseConfig';
 
 export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
+  const dispatch = useDispatch();
+
+  const handleLogin = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const { displayName, email: userEmail } = userCredential.user;
+
+      dispatch(login({ email: userEmail || '', displayName: displayName || 'User' }));
+      router.replace('/');
+    } catch (error) {
+      console.error('Login failed', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome Back!</Text>
-      <Text style={styles.subtitle}>Please log in to continue</Text>
-
       <TextInput
         style={styles.input}
         placeholder="Email"
         placeholderTextColor="#888"
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
         placeholderTextColor="#888"
         secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
-
-      <TouchableOpacity style={styles.button} onPress={() => router.replace('/')}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log In</Text>
       </TouchableOpacity>
-
-      <Text style={styles.registerText}>Don't have an account? <Text style={styles.registerLink}>Sign Up</Text></Text>
     </View>
   );
 }
